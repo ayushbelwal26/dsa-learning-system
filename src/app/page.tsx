@@ -52,7 +52,7 @@ export default function Home() {
           </nav>
 
           <a
-            href="#cta"
+            href="/login"
             className="rounded-full bg-[#22c55e] px-4 py-2 text-sm font-medium text-zinc-950 shadow-[0_0_20px_-5px_rgba(34,197,94,0.5)] transition hover:bg-[#4ade80] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#22c55e] focus-visible:ring-offset-2 focus-visible:ring-offset-zinc-950"
           >
             Get Started
@@ -81,7 +81,7 @@ export default function Home() {
             </p>
             <div className="mt-10 flex flex-col items-stretch justify-center gap-3 sm:flex-row sm:items-center">
               <a
-                href="#cta"
+                href="/login"
                 className="inline-flex h-12 items-center justify-center rounded-full bg-[#22c55e] px-8 text-sm font-semibold text-zinc-950 shadow-[0_0_24px_-6px_rgba(34,197,94,0.45)] transition hover:bg-[#4ade80] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#22c55e] focus-visible:ring-offset-2 focus-visible:ring-offset-zinc-950"
               >
                 Start Learning Free
@@ -388,7 +388,7 @@ export default function Home() {
               Join AlgoPath and let your next step be obvious—every single day.
             </p>
             <a
-              href="#"
+              href="/login"
               className="mt-8 inline-flex h-12 items-center justify-center rounded-full bg-[#22c55e] px-10 text-sm font-semibold text-zinc-950 shadow-[0_0_32px_-8px_rgba(34,197,94,0.55)] transition hover:bg-[#4ade80] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#22c55e] focus-visible:ring-offset-2 focus-visible:ring-offset-zinc-950"
             >
               Start Learning Free
