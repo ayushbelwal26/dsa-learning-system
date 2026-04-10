@@ -19,12 +19,34 @@ function requiresAuth(pathname: string) {
   return needsOnboardingCompletePath(pathname) || isOnboardingPath(pathname);
 }
 
-/** Copy Set-Cookie headers from the session refresh response onto another response (e.g. redirects). */
+/**
+ * Copy session cookies onto redirects. Uses getSetCookie when available (Node);
+ * falls back to Response cookies API for Edge runtimes that omit getSetCookie.
+ */
 function forwardSetCookies(from: NextResponse, to: NextResponse) {
-  const cookies = from.headers.getSetCookie();
-  for (const cookie of cookies) {
-    to.headers.append("Set-Cookie", cookie);
+  try {
+    const getSetCookie = from.headers.getSetCookie?.bind(from.headers);
+    if (typeof getSetCookie === "function") {
+      const list = getSetCookie();
+      if (Array.isArray(list) && list.length > 0) {
+        for (const cookie of list) {
+          to.headers.append("Set-Cookie", cookie);
+        }
+        return to;
+      }
+    }
+  } catch {
+    // fall through
   }
+
+  try {
+    for (const c of from.cookies.getAll()) {
+      to.cookies.set(c.name, c.value);
+    }
+  } catch {
+    // last resort: continue without copying (session may still work on same response chain)
+  }
+
   return to;
 }
 
@@ -36,10 +58,6 @@ type ProfileOnboardingState = {
   profileQueryError: boolean;
 };
 
-/**
- * Missing profile row OR null study_mode/daily_hours → needs onboarding.
- * Query errors: treat as needs onboarding (never send logged-in user to /login for this).
- */
 async function getProfileOnboardingState(
   supabase: SupabaseClient,
   userId: string,
@@ -83,14 +101,28 @@ async function getProfileOnboardingState(
 }
 
 export async function middleware(request: NextRequest) {
-  let supabaseResponse = NextResponse.next({
-    request,
-  });
+  const { pathname } = request.nextUrl;
+  const origin = request.nextUrl.origin;
 
-  const supabase = createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-    {
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+
+  if (!supabaseUrl || !supabaseAnonKey) {
+    console.error(
+      "[middleware] Missing NEXT_PUBLIC_SUPABASE_URL or NEXT_PUBLIC_SUPABASE_ANON_KEY — set them in Vercel Project Settings → Environment Variables",
+    );
+    if (requiresAuth(pathname)) {
+      return NextResponse.redirect(new URL("/login", origin));
+    }
+    return NextResponse.next();
+  }
+
+  try {
+    let supabaseResponse = NextResponse.next({
+      request,
+    });
+
+    const supabase = createServerClient(supabaseUrl, supabaseAnonKey, {
       cookies: {
         getAll() {
           return request.cookies.getAll();
@@ -114,66 +146,68 @@ export async function middleware(request: NextRequest) {
           }
         },
       },
-    },
-  );
+    });
 
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
 
-  const { pathname } = request.nextUrl;
-  const origin = request.nextUrl.origin;
+    if (!user) {
+      if (requiresAuth(pathname)) {
+        const login = new URL("/login", origin);
+        login.searchParams.set("next", pathname);
+        const redirect = NextResponse.redirect(login);
+        return forwardSetCookies(supabaseResponse, redirect);
+      }
+      return supabaseResponse;
+    }
 
-  // Not logged in → only then send to /login for protected routes.
-  if (!user) {
+    const userId = user.id;
+    const onboardingState = await getProfileOnboardingState(supabase, userId);
+
+    if (process.env.NODE_ENV === "development") {
+      console.log("[middleware:onboarding]", {
+        userId,
+        profileRowFound: onboardingState.profileRowFound,
+        study_mode: onboardingState.study_mode,
+        daily_hours: onboardingState.daily_hours,
+        needsOnboarding: onboardingState.needsOnboarding,
+        pathname,
+        ...(onboardingState.profileQueryError
+          ? { profileQueryError: true }
+          : {}),
+      });
+    }
+
+    const incompleteOnboarding = onboardingState.needsOnboarding;
+
+    if (pathname === "/login") {
+      const dest = incompleteOnboarding ? "/onboarding" : "/dashboard";
+      const redirect = NextResponse.redirect(new URL(dest, origin));
+      return forwardSetCookies(supabaseResponse, redirect);
+    }
+
+    if (incompleteOnboarding) {
+      if (needsOnboardingCompletePath(pathname)) {
+        const redirect = NextResponse.redirect(new URL("/onboarding", origin));
+        return forwardSetCookies(supabaseResponse, redirect);
+      }
+      return supabaseResponse;
+    }
+
+    if (isOnboardingPath(pathname)) {
+      const redirect = NextResponse.redirect(new URL("/dashboard", origin));
+      return forwardSetCookies(supabaseResponse, redirect);
+    }
+
+    return supabaseResponse;
+  } catch (err) {
+    console.error("[middleware] Uncaught error:", err);
     if (requiresAuth(pathname)) {
-      const login = new URL("/login", origin);
-      login.searchParams.set("next", pathname);
-      const redirect = NextResponse.redirect(login);
-      return forwardSetCookies(supabaseResponse, redirect);
+      return NextResponse.redirect(new URL("/login", origin));
     }
-    return supabaseResponse;
+    return NextResponse.next();
   }
-
-  const userId = user.id;
-  const onboardingState = await getProfileOnboardingState(supabase, userId);
-
-  console.log("[middleware:onboarding]", {
-    userId,
-    profileRowFound: onboardingState.profileRowFound,
-    study_mode: onboardingState.study_mode,
-    daily_hours: onboardingState.daily_hours,
-    needsOnboarding: onboardingState.needsOnboarding,
-    pathname,
-    ...(onboardingState.profileQueryError
-      ? { profileQueryError: true }
-      : {}),
-  });
-
-  const incompleteOnboarding = onboardingState.needsOnboarding;
-
-  if (pathname === "/login") {
-    const dest = incompleteOnboarding ? "/onboarding" : "/dashboard";
-    const redirect = NextResponse.redirect(new URL(dest, origin));
-    return forwardSetCookies(supabaseResponse, redirect);
-  }
-
-  // Logged in but profile missing or incomplete → send to onboarding from app routes that require a finished profile.
-  if (incompleteOnboarding) {
-    if (needsOnboardingCompletePath(pathname)) {
-      const redirect = NextResponse.redirect(new URL("/onboarding", origin));
-      return forwardSetCookies(supabaseResponse, redirect);
-    }
-    return supabaseResponse;
-  }
-
-  // Profile complete; don't keep them on onboarding.
-  if (isOnboardingPath(pathname)) {
-    const redirect = NextResponse.redirect(new URL("/dashboard", origin));
-    return forwardSetCookies(supabaseResponse, redirect);
-  }
-
-  return supabaseResponse;
 }
 
 export const config = {
