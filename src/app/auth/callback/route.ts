@@ -5,7 +5,6 @@ import { NextResponse } from "next/server";
 export async function GET(request: Request) {
   const { searchParams, origin } = new URL(request.url);
   const code = searchParams.get("code");
-  const next = searchParams.get("next") ?? "/dashboard";
 
   if (!code) {
     return NextResponse.redirect(`${origin}/login?error=missing_code`);
@@ -64,6 +63,6 @@ export async function GET(request: Request) {
     }
   }
 
-  const redirectUrl = next.startsWith("/") ? `${origin}${next}` : `${origin}/dashboard`;
-  return NextResponse.redirect(redirectUrl);
+  // Always land on /onboarding after OAuth; middleware sends completed users to /dashboard.
+  return NextResponse.redirect(`${origin}/onboarding`);
 }
