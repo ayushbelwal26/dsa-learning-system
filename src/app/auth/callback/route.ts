@@ -60,15 +60,28 @@ export async function GET(request: Request) {
   } = await supabase.auth.getUser();
 
   if (user) {
-    // Check if profile exists and is complete
+    // Query the profiles table for this user's id
     const { data: profile } = await supabase
       .from("profiles")
       .select("study_mode, daily_hours")
       .eq("id", user.id)
       .maybeSingle();
 
+    const profileFound = !!profile;
+    const studyMode = profile?.study_mode;
+    const dailyHours = profile?.daily_hours;
+    
+    // Debug logging
+    console.log("[auth/callback] OAuth redirect decision:", {
+      user_id: user.id,
+      profile_found: profileFound,
+      study_mode: studyMode,
+      daily_hours: dailyHours,
+    });
+
     if (!profile) {
-      // No profile row exists - create it and redirect to onboarding
+      // No profile row found - create it and redirect to onboarding
+      console.log("[auth/callback] No profile found, creating profile and redirecting to /onboarding");
       const { error: insertError } = await supabase.from("profiles").insert({
         id: user.id,
         email: user.email,
@@ -78,11 +91,13 @@ export async function GET(request: Request) {
       }
       return redirectAfterOAuthSuccess(origin);
     } else {
-      // Profile row exists - check if complete
-      const isComplete = profile.study_mode && profile.daily_hours;
-      
-      if (isComplete) {
-        // Profile is complete - redirect to dashboard
+      // Profile row found - check if study_mode or daily_hours is null
+      if (studyMode === null || dailyHours === null) {
+        console.log("[auth/callback] Profile found but incomplete (study_mode or daily_hours is null), redirecting to /onboarding");
+        return redirectAfterOAuthSuccess(origin);
+      } else {
+        // Profile row found and both study_mode and daily_hours have values
+        console.log("[auth/callback] Profile found and complete, redirecting to /dashboard");
         const res = NextResponse.redirect(new URL("/dashboard", origin), 303);
         res.headers.set(
           "Cache-Control",
@@ -91,13 +106,11 @@ export async function GET(request: Request) {
         res.headers.set("Pragma", "no-cache");
         res.headers.set("Expires", "0");
         return res;
-      } else {
-        // Profile exists but incomplete - redirect to onboarding
-        return redirectAfterOAuthSuccess(origin);
       }
     }
   }
 
   // Fallback to onboarding if no user
+  console.log("[auth/callback] No user found, fallback to /onboarding");
   return redirectAfterOAuthSuccess(origin);
 }
