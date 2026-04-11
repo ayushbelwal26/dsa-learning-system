@@ -180,17 +180,9 @@ export async function middleware(request: NextRequest) {
       return forwardSetCookies(supabaseResponse, redirect);
     }
 
-    // Landing page: logged-in users should be redirected to appropriate app routes
+    // Landing page: always accessible to everyone, never redirect
     if (pathname === "/" || pathname === "") {
-      const landingOnboardingState = await getProfileOnboardingState(
-        supabase,
-        userId,
-      );
-      const destination = landingOnboardingState.needsOnboarding
-        ? "/onboarding"
-        : "/dashboard";
-      const redirect = NextResponse.redirect(new URL(destination, origin));
-      return forwardSetCookies(supabaseResponse, redirect);
+      return supabaseResponse;
     }
 
     const onboardingState = await getProfileOnboardingState(supabase, userId);
