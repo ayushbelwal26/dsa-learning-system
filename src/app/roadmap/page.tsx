@@ -1,106 +1,28 @@
 import { Navbar } from "@/components/navbar"
 import { ProgressSidebar } from "@/components/progress-sidebar"
 import { TopicCard, type TopicStatus, type Difficulty } from "@/components/topic-card"
+import { getTopicsWithProgress, getUserStats } from "@/lib/data"
 
-interface Topic {
-  number: string
-  title: string
-  description: string
-  difficulty: Difficulty
-  status: TopicStatus
-  problemCount: number
-}
+export default async function RoadmapPage() {
+  const topics = await getTopicsWithProgress()
+  const stats = await getUserStats()
 
-const topics: Topic[] = [
-  {
-    number: "01",
-    title: "Arrays",
-    description: "Foundation of DSA",
-    difficulty: "Beginner",
-    status: "completed",
-    problemCount: 12,
-  },
-  {
-    number: "02",
-    title: "Strings",
-    description: "Text manipulation",
-    difficulty: "Beginner",
-    status: "in-progress",
-    problemCount: 10,
-  },
-  {
-    number: "03",
-    title: "Linked Lists",
-    description: "Pointer manipulation",
-    difficulty: "Beginner",
-    status: "locked",
-    problemCount: 8,
-  },
-  {
-    number: "04",
-    title: "Binary Search",
-    description: "Search techniques",
-    difficulty: "Beginner",
-    status: "locked",
-    problemCount: 9,
-  },
-  {
-    number: "05",
-    title: "Recursion",
-    description: "Recursive thinking",
-    difficulty: "Beginner",
-    status: "locked",
-    problemCount: 7,
-  },
-  {
-    number: "06",
-    title: "Stacks & Queues",
-    description: "LIFO and FIFO structures",
-    difficulty: "Intermediate",
-    status: "locked",
-    problemCount: 11,
-  },
-  {
-    number: "07",
-    title: "Trees",
-    description: "Hierarchical data structures",
-    difficulty: "Intermediate",
-    status: "locked",
-    problemCount: 14,
-  },
-  {
-    number: "08",
-    title: "Graphs",
-    description: "Network traversal problems",
-    difficulty: "Advanced",
-    status: "locked",
-    problemCount: 16,
-  },
-  {
-    number: "09",
-    title: "Dynamic Programming",
-    description: "Optimization techniques",
-    difficulty: "Advanced",
-    status: "locked",
-    problemCount: 18,
-  },
-  {
-    number: "10",
-    title: "Greedy Algorithms",
-    description: "Local optimization",
-    difficulty: "Advanced",
-    status: "locked",
-    problemCount: 12,
-  },
-]
+  // Map Supabase data to TopicCard format
+  const mappedTopics = topics?.map((topic, index) => ({
+    number: String(index + 1).padStart(2, '0'),
+    title: topic.title,
+    description: topic.description || 'Learn this important DSA concept',
+    difficulty: topic.difficulty as Difficulty,
+    status: topic.status as TopicStatus,
+    problemCount: topic.total_problems || 10,
+  })) || []
 
-export default function RoadmapPage() {
-  const completedTopics = topics.filter((t) => t.status === "completed").length
-  const totalTopics = topics.length
+  const completedTopics = mappedTopics.filter((t) => t.status === "completed").length
+  const totalTopics = mappedTopics.length
   const progressPercentage = (completedTopics / totalTopics) * 100
 
-  const totalProblems = topics.reduce((acc, t) => acc + t.problemCount, 0)
-  const problemsSolved = 3
+  const totalProblems = mappedTopics.reduce((acc, t) => acc + t.problemCount, 0)
+  const problemsSolved = stats?.solvedProblems || 0
 
   return (
     <div style={{ backgroundColor: '#0a0a0a', minHeight: '100vh' }}>
@@ -186,7 +108,7 @@ export default function RoadmapPage() {
               flex: '0 0 65%',
             }}
           >
-            {topics.map((topic) => (
+            {mappedTopics.map((topic) => (
               <TopicCard
                 key={topic.number}
                 number={topic.number}
