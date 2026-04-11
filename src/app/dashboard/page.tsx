@@ -22,7 +22,7 @@ export default async function DashboardPage() {
         {/* Page Header */}
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-[#fafafa] mb-2">
-            Good morning, {profile?.first_name || 'User'} <span className="text-2xl">{"\ud83d\udc4b"}</span>
+            Good morning, {profile?.first_name || 'there'} <span className="text-2xl">{"\ud83d\udc4b"}</span>
           </h1>
           <p className="text-[#71717a] text-lg">
             Ready to continue your DSA journey?

@@ -12,6 +12,11 @@ export async function getUserProfile() {
     .eq('id', user.id)
     .single()
   
+  // Add user name from auth metadata as fallback
+  if (profile && !profile.first_name) {
+    profile.first_name = user.user_metadata?.full_name || user.user_metadata?.name || null
+  }
+  
   return profile
 }
 
