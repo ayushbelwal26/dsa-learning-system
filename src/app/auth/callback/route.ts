@@ -1,13 +1,27 @@
+import { getRequestOrigin } from "@/lib/request-origin";
 import { createServerClient } from "@supabase/ssr";
 import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
 
+/** 303 + no-store so the browser does not keep the OAuth callback in history (avoids back → Google picker). */
+function redirectAfterOAuthSuccess(origin: string) {
+  const res = NextResponse.redirect(new URL("/onboarding", origin), 303);
+  res.headers.set(
+    "Cache-Control",
+    "no-store, no-cache, must-revalidate",
+  );
+  res.headers.set("Pragma", "no-cache");
+  res.headers.set("Expires", "0");
+  return res;
+}
+
 export async function GET(request: Request) {
-  const { searchParams, origin } = new URL(request.url);
+  const { searchParams } = new URL(request.url);
+  const origin = getRequestOrigin(request);
   const code = searchParams.get("code");
 
   if (!code) {
-    return NextResponse.redirect(`${origin}/login?error=missing_code`);
+    return NextResponse.redirect(new URL("/login?error=missing_code", origin));
   }
 
   const cookieStore = await cookies();
@@ -36,9 +50,9 @@ export async function GET(request: Request) {
   const { error } = await supabase.auth.exchangeCodeForSession(code);
 
   if (error) {
-    return NextResponse.redirect(
-      `${origin}/login?error=${encodeURIComponent(error.message)}`,
-    );
+    const login = new URL("/login", origin);
+    login.searchParams.set("error", error.message);
+    return NextResponse.redirect(login);
   }
 
   const {
@@ -46,13 +60,15 @@ export async function GET(request: Request) {
   } = await supabase.auth.getUser();
 
   if (user) {
-    const { data: existing } = await supabase
+    // Check if profile exists and is complete
+    const { data: profile } = await supabase
       .from("profiles")
-      .select("id")
+      .select("study_mode, daily_hours")
       .eq("id", user.id)
       .maybeSingle();
 
-    if (!existing) {
+    if (!profile) {
+      // No profile row exists - create it and redirect to onboarding
       const { error: insertError } = await supabase.from("profiles").insert({
         id: user.id,
         email: user.email,
@@ -60,9 +76,28 @@ export async function GET(request: Request) {
       if (insertError) {
         console.error("[auth/callback] profiles insert:", insertError.message);
       }
+      return redirectAfterOAuthSuccess(origin);
+    } else {
+      // Profile row exists - check if complete
+      const isComplete = profile.study_mode && profile.daily_hours;
+      
+      if (isComplete) {
+        // Profile is complete - redirect to dashboard
+        const res = NextResponse.redirect(new URL("/dashboard", origin), 303);
+        res.headers.set(
+          "Cache-Control",
+          "no-store, no-cache, must-revalidate",
+        );
+        res.headers.set("Pragma", "no-cache");
+        res.headers.set("Expires", "0");
+        return res;
+      } else {
+        // Profile exists but incomplete - redirect to onboarding
+        return redirectAfterOAuthSuccess(origin);
+      }
     }
   }
 
-  // Always land on /onboarding after OAuth; middleware sends completed users to /dashboard.
-  return NextResponse.redirect(`${origin}/onboarding`);
+  // Fallback to onboarding if no user
+  return redirectAfterOAuthSuccess(origin);
 }

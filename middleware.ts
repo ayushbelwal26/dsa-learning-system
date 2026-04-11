@@ -1,5 +1,6 @@
 import { createServerClient } from "@supabase/ssr";
 import type { SupabaseClient } from "@supabase/supabase-js";
+import { getRequestOrigin } from "@/lib/request-origin";
 import { NextResponse, type NextRequest } from "next/server";
 
 function needsOnboardingCompletePath(pathname: string) {
@@ -102,7 +103,7 @@ async function getProfileOnboardingState(
 
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
-  const origin = request.nextUrl.origin;
+  const origin = getRequestOrigin(request);
 
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
@@ -163,6 +164,35 @@ export async function middleware(request: NextRequest) {
     }
 
     const userId = user.id;
+
+    // Logged-in users must never be left on /login or sent to `/` — only app routes.
+    const isLoginPath =
+      pathname === "/login" || pathname === "/login/";
+    if (isLoginPath) {
+      const loginOnboardingState = await getProfileOnboardingState(
+        supabase,
+        userId,
+      );
+      const destination = loginOnboardingState.needsOnboarding
+        ? "/onboarding"
+        : "/dashboard";
+      const redirect = NextResponse.redirect(new URL(destination, origin));
+      return forwardSetCookies(supabaseResponse, redirect);
+    }
+
+    // Landing page: logged-in users should be redirected to appropriate app routes
+    if (pathname === "/" || pathname === "") {
+      const landingOnboardingState = await getProfileOnboardingState(
+        supabase,
+        userId,
+      );
+      const destination = landingOnboardingState.needsOnboarding
+        ? "/onboarding"
+        : "/dashboard";
+      const redirect = NextResponse.redirect(new URL(destination, origin));
+      return forwardSetCookies(supabaseResponse, redirect);
+    }
+
     const onboardingState = await getProfileOnboardingState(supabase, userId);
 
     if (process.env.NODE_ENV === "development") {
@@ -180,12 +210,6 @@ export async function middleware(request: NextRequest) {
     }
 
     const incompleteOnboarding = onboardingState.needsOnboarding;
-
-    if (pathname === "/login") {
-      const dest = incompleteOnboarding ? "/onboarding" : "/dashboard";
-      const redirect = NextResponse.redirect(new URL(dest, origin));
-      return forwardSetCookies(supabaseResponse, redirect);
-    }
 
     if (incompleteOnboarding) {
       if (needsOnboardingCompletePath(pathname)) {

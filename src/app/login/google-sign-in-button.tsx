@@ -1,12 +1,9 @@
 "use client";
 
 import { createClient } from "@/lib/supabase/client";
-import { useSearchParams } from "next/navigation";
 import { useState } from "react";
 
 export function GoogleSignInButton() {
-  const searchParams = useSearchParams();
-  const next = searchParams.get("next") ?? "/dashboard";
   const [pending, setPending] = useState(false);
 
   async function signInWithGoogle() {
@@ -15,7 +12,9 @@ export function GoogleSignInButton() {
     const { error } = await supabase.auth.signInWithOAuth({
       provider: "google",
       options: {
-        redirectTo: `${window.location.origin}/auth/callback?next=${encodeURIComponent(next)}`,
+        // Callback route always sends users to /onboarding; do not pass `next` here
+        // (Supabase can treat query params as redirect hints on some setups).
+        redirectTo: `${window.location.origin}/auth/callback`,
       },
     });
     if (error) {

@@ -1,5 +1,4 @@
 import Link from "next/link";
-import { Suspense } from "react";
 import { GoogleSignInButton } from "./google-sign-in-button";
 
 export default function LoginPage() {
@@ -42,15 +41,7 @@ export default function LoginPage() {
           </p>
 
           <div className="mt-8">
-            <Suspense
-              fallback={
-                <div className="flex h-12 w-full items-center justify-center rounded-full border border-white/10 bg-white/[0.04] text-sm text-zinc-500">
-                  Loading…
-                </div>
-              }
-            >
-              <GoogleSignInButton />
-            </Suspense>
+            <GoogleSignInButton />
           </div>
 
           <p className="mt-8 text-center text-sm text-zinc-500">
