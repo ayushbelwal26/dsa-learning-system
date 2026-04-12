@@ -2,6 +2,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { PlanGenerator } from "@/components/plan-generator";
+import { RevisionCard } from "@/components/revision-card";
 import {
   BarChart2,
   Flame,
@@ -9,7 +10,6 @@ import {
   CheckCircle2,
   BookOpen,
   AlertTriangle,
-  CalendarDays,
   Map,
   LogOut,
 } from "lucide-react";
@@ -29,9 +29,10 @@ function greeting(name: string) {
 }
 
 type ProgressRow = {
-  topic_id: string;
-  confidence: string | null;
+  topic_id:         string;
+  confidence:       string | null;
   next_revision_at: string | null;
+  revision_count?:  number;
 };
 type TopicRow = {
   id: string;
@@ -109,6 +110,27 @@ export default async function DashboardPage() {
       p.next_revision_at !== undefined &&
       p.next_revision_at < now,
   );
+
+  // Build serialisable array for RevisionCard client component
+  const revisionItems = revisionDue
+    .map((r) => {
+      const topic = safeTopics.find((t) => t.id === r.topic_id);
+      if (!topic) return null;
+      return {
+        topicId:        r.topic_id,
+        topicTitle:     topic.title,
+        topicSlug:      topic.slug,
+        nextRevisionAt: r.next_revision_at ?? now,
+        revisionCount:  r.revision_count ?? 0,
+      };
+    })
+    .filter(Boolean) as {
+      topicId: string;
+      topicTitle: string;
+      topicSlug: string;
+      nextRevisionAt: string;
+      revisionCount: number;
+    }[];
 
   // First topic with no progress record at all
   const continueTopicId = safeTopics.find(
@@ -485,58 +507,8 @@ export default async function DashboardPage() {
 
           {/* ── RIGHT COLUMN ───────────────── */}
           <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
-            {/* Revision Due */}
-            <section
-              style={{
-                backgroundColor: "#111111",
-                border: "1px solid #1f1f1f",
-                borderRadius: 14,
-                padding: 24,
-              }}
-            >
-              <div
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  gap: 8,
-                  marginBottom: 16,
-                }}
-              >
-                <CalendarDays size={15} color="#a855f7" />
-                <span style={{ fontSize: 14, fontWeight: 600 }}>
-                  Revision Due
-                </span>
-              </div>
-
-              {revisionDue.length > 0 ? (
-                <div style={{ display: "flex", flexDirection: "column", gap: 7 }}>
-                  {revisionDue.slice(0, 5).map((r) => {
-                    const topic = safeTopics.find(
-                      (t) => t.id === r.topic_id,
-                    );
-                    return (
-                      <div
-                        key={r.topic_id}
-                        style={{
-                          fontSize: 13,
-                          color: "#a1a1aa",
-                          backgroundColor: "#0d0d0d",
-                          border: "1px solid #1f1f1f",
-                          borderRadius: 8,
-                          padding: "9px 12px",
-                        }}
-                      >
-                        {topic?.title ?? r.topic_id}
-                      </div>
-                    );
-                  })}
-                </div>
-              ) : (
-                <p style={{ fontSize: 13, color: "#71717a" }}>
-                  You&apos;re all caught up! 🎉
-                </p>
-              )}
-            </section>
+            {/* Revision Due — interactive client component */}
+            <RevisionCard items={revisionItems} />
 
             {/* Roadmap Progress */}
             <section
