@@ -2,6 +2,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
+import { ProblemRow, SpinStyle } from "./problem-row";
 import {
   LogOut,
   ArrowLeft,
@@ -153,6 +154,9 @@ export default async function TopicPage({
 
   const solvedIds = new Set(
     attempts.filter((a) => a.status === "solved").map((a) => a.problem_id),
+  );
+  const attemptedIds = new Set(
+    attempts.filter((a) => a.status === "attempted").map((a) => a.problem_id),
   );
   const solved = problems.filter((p) => solvedIds.has(p.id)).length;
   const total = problems.length;
@@ -524,105 +528,24 @@ export default async function TopicPage({
                     </thead>
                     <tbody>
                       {problems.map((p, i) => {
-                        const isSolved = solvedIds.has(p.id);
+                        const status =
+                          solvedIds.has(p.id)
+                            ? 'solved'
+                            : attemptedIds.has(p.id)
+                            ? 'attempted'
+                            : 'none'
                         return (
-                          <tr key={p.id}>
-                            <td
-                              style={{
-                                padding: "12px 12px 12px 0",
-                                color: "#3f3f46",
-                                borderBottom: "1px solid #141414",
-                                verticalAlign: "middle",
-                              }}
-                            >
-                              {isSolved ? (
-                                <CheckCircle2
-                                  size={14}
-                                  color="#22c55e"
-                                  style={{ display: "block" }}
-                                />
-                              ) : (
-                                String(i + 1).padStart(2, "0")
-                              )}
-                            </td>
-                            <td
-                              style={{
-                                padding: "12px 12px 12px 0",
-                                color: "#fafafa",
-                                borderBottom: "1px solid #141414",
-                                verticalAlign: "middle",
-                                maxWidth: 220,
-                              }}
-                            >
-                              {p.title}
-                            </td>
-                            <td
-                              style={{
-                                padding: "12px 12px 12px 0",
-                                borderBottom: "1px solid #141414",
-                                verticalAlign: "middle",
-                                whiteSpace: "nowrap",
-                              }}
-                            >
-                              <span
-                                style={{
-                                  fontSize: 11,
-                                  fontWeight: 600,
-                                  color:
-                                    difficultyColor[p.difficulty] ?? "#71717a",
-                                  backgroundColor:
-                                    difficultyBg[p.difficulty] ?? "#1f1f1f",
-                                  padding: "2px 8px",
-                                  borderRadius: 999,
-                                }}
-                              >
-                                {p.difficulty}
-                              </span>
-                            </td>
-                            <td
-                              style={{
-                                padding: "12px 12px 12px 0",
-                                borderBottom: "1px solid #141414",
-                                color: "#3f3f46",
-                                fontSize: 12,
-                                verticalAlign: "middle",
-                                whiteSpace: "nowrap",
-                              }}
-                            >
-                              {p.pattern ?? "—"}
-                            </td>
-                            <td
-                              style={{
-                                padding: "12px 0",
-                                borderBottom: "1px solid #141414",
-                                verticalAlign: "middle",
-                                textAlign: "right",
-                              }}
-                            >
-                              <a
-                                href={p.url}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                style={{
-                                  display: "inline-flex",
-                                  alignItems: "center",
-                                  gap: 4,
-                                  fontSize: 12,
-                                  fontWeight: 500,
-                                  color: "#71717a",
-                                  backgroundColor: "#1a1a1a",
-                                  border: "1px solid #2a2a2a",
-                                  borderRadius: 7,
-                                  padding: "4px 10px",
-                                  textDecoration: "none",
-                                  whiteSpace: "nowrap",
-                                }}
-                              >
-                                Solve
-                                <ExternalLink size={10} />
-                              </a>
-                            </td>
-                          </tr>
+                          <ProblemRow
+                            key={p.id}
+                            index={i}
+                            problemId={p.id}
+                            title={p.title}
+                            url={p.url}
+                            difficulty={p.difficulty}
+                            pattern={p.pattern}
+                            initialStatus={status as 'solved' | 'attempted' | 'none'}
+                            slug={slug}
+                          />
                         );
                       })}
                     </tbody>
@@ -854,6 +777,7 @@ export default async function TopicPage({
         </div>
       </main>
 
+      <SpinStyle />
       <style>{`
         @media (max-width: 768px) {
           .topic-grid {
