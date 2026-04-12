@@ -1,292 +1,794 @@
-import Link from "next/link"
+import Link from "next/link";
+import {
+  Map,
+  Bookmark,
+  Zap,
+  Repeat,
+  CheckCircle2,
+  Play,
+  LayoutGrid,
+  BrainCircuit,
+} from "lucide-react";
 
+/* ─────────────────────────────────────────────
+   STATIC DATA
+───────────────────────────────────────────── */
+const problems = [
+  {
+    icon: Play,
+    color: "#ef4444",
+    title: "Random YouTube rabbit holes",
+    desc: "Watching video after video with no clear direction or goal",
+  },
+  {
+    icon: LayoutGrid,
+    color: "#f97316",
+    title: "Tab chaos",
+    desc: "Jumping between LeetCode, blogs, sheets and getting nowhere",
+  },
+  {
+    icon: BrainCircuit,
+    color: "#eab308",
+    title: "Decision fatigue",
+    desc: "Spending 30 minutes deciding what to study instead of studying",
+  },
+];
+
+const features = [
+  {
+    icon: Map,
+    title: "Structured Roadmap",
+    desc: "Clear path from Arrays to DP. No confusion about what's next.",
+    hero: false,
+  },
+  {
+    icon: Bookmark,
+    title: "Curated Resources",
+    desc: "Best video + problems for every topic. We remove the noise.",
+    hero: false,
+  },
+  {
+    icon: Zap,
+    title: "AI Daily Planner",
+    desc: "Tell us your time. We tell you exactly what to do today.",
+    hero: true,
+  },
+  {
+    icon: Repeat,
+    title: "Smart Revision",
+    desc: "Spaced repetition so you never forget what you learned.",
+    hero: false,
+  },
+];
+
+const steps = [
+  {
+    num: "01",
+    title: "Tell us your goal",
+    desc: "Choose your study mode and how much time you have daily",
+  },
+  {
+    num: "02",
+    title: "Get your daily plan",
+    desc: "AI builds a personalized plan based on your progress",
+  },
+  {
+    num: "03",
+    title: "Track and improve",
+    desc: "Mark problems solved, track weak areas, revise on time",
+  },
+];
+
+const pricingFeatures = [
+  "Full DSA roadmap access",
+  "Curated resources for every topic",
+  "AI daily planner (5 plans/day)",
+  "Progress tracking",
+  "Spaced revision reminders",
+];
+
+const companies = ["Google", "Amazon", "Microsoft", "Flipkart", "Adobe"];
+
+/* ─────────────────────────────────────────────
+   PAGE
+───────────────────────────────────────────── */
 export default function LandingPage() {
   return (
-    <div className="min-h-screen bg-[#0a0a0a] text-white">
-      {/* Sticky Navbar */}
-      <nav className="sticky top-0 z-50 bg-[#0a0a0a] border-b border-[#1f1f1f] backdrop-blur-md">
-        <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
+    <div
+      style={{ backgroundColor: "#0a0a0a", color: "#fafafa", fontFamily: "var(--font-geist-sans), system-ui, sans-serif" }}
+      className="min-h-screen"
+    >
+      {/* ── NAVBAR ─────────────────────────────── */}
+      <nav
+        style={{
+          backgroundColor: "rgba(10,10,10,0.85)",
+          borderBottom: "1px solid #1f1f1f",
+          backdropFilter: "blur(12px)",
+          WebkitBackdropFilter: "blur(12px)",
+          height: "56px",
+        }}
+        className="fixed top-0 inset-x-0 z-50 flex items-center px-6"
+      >
+        <div className="max-w-6xl mx-auto w-full flex items-center justify-between">
           {/* Logo */}
-          <Link href="/" className="flex items-center gap-2">
-            <div className="w-8 h-8 bg-[#22c55e] rounded-full flex items-center justify-center text-[#0a0a0a] font-bold text-sm">
-              A
-            </div>
-            <span className="text-xl font-bold text-white">AlgoPath</span>
+          <Link href="/" className="flex items-center gap-2 no-underline">
+            <span
+              style={{ backgroundColor: "#22c55e", width: 20, height: 20 }}
+              className="rounded-full flex-shrink-0"
+            />
+            <span style={{ color: "#fafafa", fontWeight: 600, fontSize: 15 }}>
+              AlgoPath
+            </span>
           </Link>
 
-          {/* Center Links */}
+          {/* Center nav */}
           <div className="hidden md:flex items-center gap-8">
-            <a href="#features" className="text-[#71717a] hover:text-white transition-colors">
-              Features
-            </a>
-            <Link href="/roadmap" className="text-[#71717a] hover:text-white transition-colors">
-              Roadmap
-            </Link>
-            <a href="#pricing" className="text-[#71717a] hover:text-white transition-colors">
-              Pricing
-            </a>
+            {["Features", "Roadmap", "Pricing"].map((item) => (
+              <a
+                key={item}
+                href={`#${item.toLowerCase()}`}
+                style={{ color: "#71717a", fontSize: 14, textDecoration: "none" }}
+                className="hover:text-white transition-colors duration-150"
+              >
+                {item}
+              </a>
+            ))}
           </div>
 
-          {/* Get Started Button */}
-          <Link 
-            href="/login"
-            className="bg-[#22c55e] text-[#0a0a0a] px-4 py-2 rounded-md font-medium hover:bg-[#22c55e]/90 transition-colors"
-          >
-            Get Started
-          </Link>
+          {/* Right buttons */}
+          <div className="flex items-center gap-3">
+            <Link
+              href="/login"
+              style={{
+                color: "#71717a",
+                fontSize: 14,
+                textDecoration: "none",
+                padding: "6px 14px",
+                border: "1px solid #1f1f1f",
+                borderRadius: 8,
+              }}
+              className="hidden sm:inline-flex items-center hover:border-zinc-600 hover:text-white transition-all duration-150"
+            >
+              Sign in
+            </Link>
+            <Link
+              href="/login"
+              style={{
+                backgroundColor: "#22c55e",
+                color: "#0a0a0a",
+                fontSize: 14,
+                fontWeight: 600,
+                textDecoration: "none",
+                padding: "6px 14px",
+                borderRadius: 8,
+              }}
+              className="inline-flex items-center hover:opacity-90 transition-opacity duration-150"
+            >
+              Get Started
+            </Link>
+          </div>
         </div>
       </nav>
 
-      {/* Hero Section */}
-      <section className="max-w-6xl mx-auto px-6 py-20 md:py-32">
-        <div className="text-center max-w-3xl mx-auto">
-          {/* Badge */}
-          <div className="inline-flex items-center gap-2 bg-[#1f1f1f] px-3 py-1 rounded-full text-sm text-[#71717a] mb-6">
-            <div className="w-2 h-2 bg-[#22c55e] rounded-full"></div>
-            AI-powered DSA learning
-          </div>
+      {/* ── HERO ────────────────────────────────── */}
+      <section
+        className="relative flex flex-col items-center text-center overflow-hidden"
+        style={{ paddingTop: 176, paddingBottom: 100 }}
+      >
+        {/* Radial green glow */}
+        <div
+          aria-hidden
+          style={{
+            position: "absolute",
+            top: 120,
+            left: "50%",
+            transform: "translateX(-50%)",
+            width: 700,
+            height: 420,
+            background:
+              "radial-gradient(ellipse at center, rgba(34,197,94,0.13) 0%, transparent 70%)",
+            pointerEvents: "none",
+          }}
+        />
 
-          {/* Headline */}
-          <h1 className="text-4xl md:text-6xl font-bold text-white mb-6 leading-tight">
-            Stop Grinding Randomly. <br />
-            Start Learning with Direction.
-          </h1>
-
-          {/* Subheading */}
-          <p className="text-lg md:text-xl text-[#71717a] mb-8 leading-relaxed">
-            Your AI-powered DSA guide that tells you exactly what to study every day.
-          </p>
-
-          {/* Buttons */}
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Link
-              href="/login"
-              className="bg-[#22c55e] text-[#0a0a0a] px-6 py-3 rounded-md font-medium hover:bg-[#22c55e]/90 transition-colors"
-            >
-              Start Learning Free
-            </Link>
-            <a
-              href="#how-it-works"
-              className="border border-[#1f1f1f] text-white px-6 py-3 rounded-md font-medium hover:bg-[#1f1f1f] transition-colors"
-            >
-              See How It Works
-            </a>
-          </div>
-        </div>
-      </section>
-
-      {/* Problem Section */}
-      <section id="features" className="max-w-6xl mx-auto px-6 py-20">
-        <div className="text-center mb-12">
-          <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
-            Sound familiar?
-          </h2>
-        </div>
-
-        <div className="grid md:grid-cols-3 gap-6">
-          {/* Problem Card 1 */}
-          <div className="bg-[#111111] border border-[#1f1f1f] rounded-lg p-6 hover:border-[#2f2f2f] transition-colors">
-            <div className="text-4xl mb-4">YouTube</div>
-            <h3 className="text-xl font-semibold text-white mb-2">
-              Watching random YouTube videos with no direction
-            </h3>
-            <p className="text-[#71717a]">
-              Jumping from one tutorial to another without a clear learning path
-            </p>
-          </div>
-
-          {/* Problem Card 2 */}
-          <div className="bg-[#111111] border border-[#1f1f1f] rounded-lg p-6 hover:border-[#2f2f2f] transition-colors">
-            <div className="text-4xl mb-4">LeetCode</div>
-            <h3 className="text-xl font-semibold text-white mb-2">
-              Jumping between LeetCode and blogs randomly
-            </h3>
-            <p className="text-[#71717a]">
-              Solving random problems without understanding the underlying concepts
-            </p>
-          </div>
-
-          {/* Problem Card 3 */}
-          <div className="bg-[#111111] border border-[#1f1f1f] rounded-lg p-6 hover:border-[#2f2f2f] transition-colors">
-            <div className="text-4xl mb-4">?</div>
-            <h3 className="text-xl font-semibold text-white mb-2">
-              Not knowing what to study next
-            </h3>
-            <p className="text-[#71717a]">
-              Feeling overwhelmed and unsure about your learning progression
-            </p>
-          </div>
-        </div>
-      </section>
-
-      {/* Features Section */}
-      <section className="max-w-6xl mx-auto px-6 py-20">
-        <div className="text-center mb-12">
-          <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
-            Everything you need to stay on track
-          </h2>
+        {/* Badge */}
+        <div
+          style={{
+            display: "inline-flex",
+            alignItems: "center",
+            gap: 8,
+            border: "1px solid #1f1f1f",
+            backgroundColor: "#111111",
+            borderRadius: 999,
+            padding: "5px 14px",
+            fontSize: 12,
+            color: "#71717a",
+            marginBottom: 28,
+            letterSpacing: "0.02em",
+          }}
+        >
+          <span
+            style={{
+              width: 7,
+              height: 7,
+              borderRadius: "50%",
+              backgroundColor: "#22c55e",
+              flexShrink: 0,
+              boxShadow: "0 0 6px #22c55e",
+            }}
+          />
+          AI-powered DSA learning
         </div>
 
-        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
-          {/* Feature 1 */}
-          <div className="bg-[#111111] border border-[#1f1f1f] rounded-lg p-6 hover:border-[#2f2f2f] transition-colors">
-            <div className="w-12 h-12 bg-[#22c55e]/20 rounded-lg flex items-center justify-center mb-4">
-              <div className="w-6 h-6 bg-[#22c55e] rounded"></div>
-            </div>
-            <h3 className="text-lg font-semibold text-white mb-2">
-              Structured Roadmap
-            </h3>
-            <p className="text-[#71717a] text-sm">
-              Expert-curated learning path from beginner to advanced
-            </p>
-          </div>
+        {/* Headline */}
+        <h1
+          style={{
+            fontSize: "clamp(36px, 6vw, 58px)",
+            fontWeight: 700,
+            lineHeight: 1.12,
+            letterSpacing: "-0.03em",
+            margin: 0,
+          }}
+        >
+          Stop Grinding Randomly.
+          <br />
+          <span style={{ color: "#22c55e" }}>Start Learning with Direction.</span>
+        </h1>
 
-          {/* Feature 2 */}
-          <div className="bg-[#111111] border border-[#1f1f1f] rounded-lg p-6 hover:border-[#2f2f2f] transition-colors">
-            <div className="w-12 h-12 bg-blue-500/20 rounded-lg flex items-center justify-center mb-4">
-              <div className="w-6 h-6 bg-blue-500 rounded"></div>
-            </div>
-            <h3 className="text-lg font-semibold text-white mb-2">
-              Curated Resources
-            </h3>
-            <p className="text-[#71717a] text-sm">
-              Best videos, articles, and problems for each topic
-            </p>
-          </div>
+        {/* Subtext */}
+        <p
+          style={{
+            marginTop: 24,
+            fontSize: 18,
+            color: "#71717a",
+            maxWidth: 500,
+            lineHeight: 1.65,
+          }}
+        >
+          AlgoPath tells you exactly what to study every day.
+          <br />
+          No more confusion. No more wasted time.
+        </p>
 
-          {/* Feature 3 */}
-          <div className="bg-[#111111] border border-[#1f1f1f] rounded-lg p-6 hover:border-[#2f2f2f] transition-colors">
-            <div className="w-12 h-12 bg-purple-500/20 rounded-lg flex items-center justify-center mb-4">
-              <div className="w-6 h-6 bg-purple-500 rounded"></div>
-            </div>
-            <h3 className="text-lg font-semibold text-white mb-2">
-              AI Daily Planner
-            </h3>
-            <p className="text-[#71717a] text-sm">
-              Personalized study plan based on your schedule and goals
-            </p>
-          </div>
-
-          {/* Feature 4 */}
-          <div className="bg-[#111111] border border-[#1f1f1f] rounded-lg p-6 hover:border-[#2f2f2f] transition-colors">
-            <div className="w-12 h-12 bg-amber-500/20 rounded-lg flex items-center justify-center mb-4">
-              <div className="w-6 h-6 bg-amber-500 rounded"></div>
-            </div>
-            <h3 className="text-lg font-semibold text-white mb-2">
-              Smart Revision System
-            </h3>
-            <p className="text-[#71717a] text-sm">
-              Spaced repetition to keep concepts fresh in your mind
-            </p>
-          </div>
-        </div>
-      </section>
-
-      {/* How It Works Section */}
-      <section id="how-it-works" className="max-w-6xl mx-auto px-6 py-20">
-        <div className="text-center mb-12">
-          <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
-            How it works
-          </h2>
-        </div>
-
-        <div className="grid md:grid-cols-3 gap-8">
-          {/* Step 1 */}
-          <div className="text-center">
-            <div className="w-16 h-16 bg-[#22c55e] rounded-full flex items-center justify-center text-2xl font-bold text-[#0a0a0a] mx-auto mb-4">
-              1
-            </div>
-            <h3 className="text-xl font-semibold text-white mb-2">
-              Enter your time
-            </h3>
-            <p className="text-[#71717a]">
-              Tell us how much time you can dedicate to DSA daily
-            </p>
-          </div>
-
-          {/* Step 2 */}
-          <div className="text-center">
-            <div className="w-16 h-16 bg-[#22c55e] rounded-full flex items-center justify-center text-2xl font-bold text-[#0a0a0a] mx-auto mb-4">
-              2
-            </div>
-            <h3 className="text-xl font-semibold text-white mb-2">
-              AI builds your plan
-            </h3>
-            <p className="text-[#71717a]">
-              Our AI creates a personalized learning roadmap just for you
-            </p>
-          </div>
-
-          {/* Step 3 */}
-          <div className="text-center">
-            <div className="w-16 h-16 bg-[#22c55e] rounded-full flex items-center justify-center text-2xl font-bold text-[#0a0a0a] mx-auto mb-4">
-              3
-            </div>
-            <h3 className="text-xl font-semibold text-white mb-2">
-              Execute and improve
-            </h3>
-            <p className="text-[#71717a]">
-              Follow your daily plan and watch your progress grow
-            </p>
-          </div>
-        </div>
-      </section>
-
-      {/* CTA Section */}
-      <section id="cta" className="max-w-6xl mx-auto px-6 py-20">
-        <div className="text-center bg-[#111111] border border-[#1f1f1f] rounded-2xl p-12">
-          <h2 className="text-3xl md:text-4xl font-bold text-white mb-6">
-            Ready to stop being confused?
-          </h2>
-          <p className="text-lg text-[#71717a] mb-8 max-w-2xl mx-auto">
-            Join thousands of students who are learning DSA the smart way with AlgoPath.
-          </p>
+        {/* CTA buttons */}
+        <div
+          style={{ marginTop: 40, display: "flex", gap: 12, flexWrap: "wrap", justifyContent: "center" }}
+        >
           <Link
             href="/login"
-            className="bg-[#22c55e] text-[#0a0a0a] px-8 py-3 rounded-md font-medium hover:bg-[#22c55e]/90 transition-colors text-lg"
+            style={{
+              backgroundColor: "#22c55e",
+              color: "#0a0a0a",
+              fontWeight: 600,
+              fontSize: 15,
+              textDecoration: "none",
+              height: 44,
+              padding: "0 24px",
+              borderRadius: 10,
+              display: "inline-flex",
+              alignItems: "center",
+            }}
+            className="hover:opacity-90 transition-opacity duration-150"
           >
             Start Learning Free
+          </Link>
+          <Link
+            href="/login"
+            style={{
+              color: "#fafafa",
+              fontSize: 15,
+              textDecoration: "none",
+              height: 44,
+              padding: "0 24px",
+              borderRadius: 10,
+              border: "1px solid #1f1f1f",
+              display: "inline-flex",
+              alignItems: "center",
+            }}
+            className="hover:border-zinc-600 transition-colors duration-150"
+          >
+            See how it works ↓
           </Link>
         </div>
       </section>
 
-      {/* Footer */}
-      <footer className="border-t border-[#1f1f1f] py-12">
-        <div className="max-w-6xl mx-auto px-6">
-          <div className="flex flex-col md:flex-row justify-between items-center">
-            {/* Logo */}
-            <div className="flex items-center gap-2 mb-4 md:mb-0">
-              <div className="w-8 h-8 bg-[#22c55e] rounded-full flex items-center justify-center text-[#0a0a0a] font-bold text-sm">
-                A
+      {/* ── SOCIAL PROOF BAR ────────────────────── */}
+      <div
+        style={{
+          backgroundColor: "#111111",
+          borderTop: "1px solid #1f1f1f",
+          borderBottom: "1px solid #1f1f1f",
+          padding: "16px 24px",
+        }}
+      >
+        <div
+          className="max-w-4xl mx-auto"
+          style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 14 }}
+        >
+          <span style={{ fontSize: 13, color: "#71717a" }}>
+            Trusted by 500+ students preparing for
+          </span>
+          <div style={{ display: "flex", gap: 10, flexWrap: "wrap", justifyContent: "center" }}>
+            {companies.map((c) => (
+              <span
+                key={c}
+                style={{
+                  backgroundColor: "#1f1f1f",
+                  color: "#71717a",
+                  fontSize: 12,
+                  fontWeight: 500,
+                  padding: "4px 14px",
+                  borderRadius: 999,
+                }}
+              >
+                {c}
+              </span>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* ── PROBLEM SECTION ─────────────────────── */}
+      <section id="features" style={{ padding: "96px 24px" }}>
+        <div className="max-w-5xl mx-auto">
+          <div style={{ marginBottom: 48, textAlign: "center" }}>
+            <p
+              style={{
+                fontSize: 11,
+                fontWeight: 600,
+                letterSpacing: "0.12em",
+                color: "#22c55e",
+                textTransform: "uppercase",
+                marginBottom: 12,
+              }}
+            >
+              The Problem
+            </p>
+            <h2
+              style={{
+                fontSize: "clamp(28px, 4vw, 36px)",
+                fontWeight: 700,
+                letterSpacing: "-0.02em",
+                marginBottom: 10,
+              }}
+            >
+              Sound familiar?
+            </h2>
+            <p style={{ fontSize: 15, color: "#71717a" }}>
+              Most students struggle with the same problems
+            </p>
+          </div>
+
+          <div
+            style={{
+              display: "grid",
+              gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))",
+              gap: 16,
+            }}
+          >
+            {problems.map(({ icon: Icon, color, title, desc }) => (
+              <div
+                key={title}
+                style={{
+                  backgroundColor: "#111111",
+                  border: "1px solid #1f1f1f",
+                  borderRadius: 14,
+                  padding: 24,
+                }}
+              >
+                <div
+                  style={{
+                    width: 38,
+                    height: 38,
+                    borderRadius: 10,
+                    backgroundColor: `${color}18`,
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    marginBottom: 16,
+                  }}
+                >
+                  <Icon size={20} color={color} />
+                </div>
+                <h3
+                  style={{ fontSize: 15, fontWeight: 500, marginBottom: 8 }}
+                >
+                  {title}
+                </h3>
+                <p style={{ fontSize: 13, color: "#71717a", lineHeight: 1.6 }}>
+                  {desc}
+                </p>
               </div>
-              <span className="text-xl font-bold text-white">AlgoPath</span>
-            </div>
+            ))}
+          </div>
+        </div>
+      </section>
 
-            {/* Links */}
-            <div className="flex flex-wrap gap-6 text-[#71717a] text-sm">
-              <a href="#features" className="hover:text-white transition-colors">
-                Features
-              </a>
-              <Link href="/roadmap" className="hover:text-white transition-colors">
-                Roadmap
-              </Link>
-              <a href="#pricing" className="hover:text-white transition-colors">
-                Pricing
-              </a>
-              <a href="#" className="hover:text-white transition-colors">
-                About
-              </a>
-              <a href="#" className="hover:text-white transition-colors">
-                Contact
-              </a>
-            </div>
+      {/* ── SOLUTION SECTION ────────────────────── */}
+      <section style={{ padding: "0 24px 96px" }}>
+        <div className="max-w-5xl mx-auto">
+          <div style={{ marginBottom: 48, textAlign: "center" }}>
+            <p
+              style={{
+                fontSize: 11,
+                fontWeight: 600,
+                letterSpacing: "0.12em",
+                color: "#22c55e",
+                textTransform: "uppercase",
+                marginBottom: 12,
+              }}
+            >
+              The Solution
+            </p>
+            <h2
+              style={{
+                fontSize: "clamp(28px, 4vw, 36px)",
+                fontWeight: 700,
+                letterSpacing: "-0.02em",
+              }}
+            >
+              Everything you need. Nothing you don&apos;t.
+            </h2>
           </div>
 
-          <div className="mt-8 text-center text-[#71717a] text-sm">
-            © 2024 AlgoPath. All rights reserved.
+          <div
+            style={{
+              display: "grid",
+              gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))",
+              gap: 16,
+            }}
+          >
+            {features.map(({ icon: Icon, title, desc, hero }) => (
+              <div
+                key={title}
+                style={{
+                  backgroundColor: "#111111",
+                  border: `1px solid ${hero ? "#22c55e40" : "#1f1f1f"}`,
+                  borderRadius: 14,
+                  padding: 24,
+                  position: "relative",
+                }}
+              >
+                {hero && (
+                  <span
+                    style={{
+                      position: "absolute",
+                      top: 14,
+                      right: 14,
+                      fontSize: 10,
+                      fontWeight: 600,
+                      letterSpacing: "0.08em",
+                      color: "#22c55e",
+                      backgroundColor: "#22c55e18",
+                      padding: "2px 8px",
+                      borderRadius: 999,
+                    }}
+                  >
+                    HERO FEATURE
+                  </span>
+                )}
+                <div
+                  style={{
+                    width: 38,
+                    height: 38,
+                    borderRadius: 10,
+                    backgroundColor: hero ? "#22c55e18" : "#1f1f1f",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    marginBottom: 16,
+                  }}
+                >
+                  <Icon size={20} color={hero ? "#22c55e" : "#71717a"} />
+                </div>
+                <h3 style={{ fontSize: 15, fontWeight: 500, marginBottom: 8 }}>
+                  {title}
+                </h3>
+                <p style={{ fontSize: 13, color: "#71717a", lineHeight: 1.6 }}>
+                  {desc}
+                </p>
+              </div>
+            ))}
           </div>
+        </div>
+      </section>
+
+      {/* ── HOW IT WORKS ────────────────────────── */}
+      <section
+        id="how-it-works"
+        style={{
+          borderTop: "1px solid #1f1f1f",
+          padding: "96px 24px",
+        }}
+      >
+        <div className="max-w-5xl mx-auto">
+          <div style={{ marginBottom: 56, textAlign: "center" }}>
+            <h2
+              style={{
+                fontSize: "clamp(28px, 4vw, 36px)",
+                fontWeight: 700,
+                letterSpacing: "-0.02em",
+              }}
+            >
+              How AlgoPath works
+            </h2>
+          </div>
+
+          <div
+            style={{
+              display: "grid",
+              gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))",
+              gap: 0,
+              position: "relative",
+            }}
+          >
+            {steps.map(({ num, title, desc }, i) => (
+              <div
+                key={num}
+                style={{
+                  padding: "0 32px 0 0",
+                  position: "relative",
+                }}
+              >
+                {/* Dashed connector (not last) */}
+                {i < steps.length - 1 && (
+                  <div
+                    aria-hidden
+                    style={{
+                      position: "absolute",
+                      top: 30,
+                      right: 0,
+                      width: 32,
+                      height: 1,
+                      borderTop: "1px dashed #2a2a2a",
+                    }}
+                    className="hidden md:block"
+                  />
+                )}
+                <span
+                  style={{
+                    fontSize: 48,
+                    fontWeight: 800,
+                    color: "#1f1f1f",
+                    lineHeight: 1,
+                    display: "block",
+                    marginBottom: 16,
+                    letterSpacing: "-0.04em",
+                  }}
+                >
+                  {num}
+                </span>
+                <h3
+                  style={{ fontSize: 17, fontWeight: 600, marginBottom: 8 }}
+                >
+                  {title}
+                </h3>
+                <p style={{ fontSize: 13, color: "#71717a", lineHeight: 1.65 }}>
+                  {desc}
+                </p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ── PRICING ─────────────────────────────── */}
+      <section
+        id="pricing"
+        style={{ padding: "96px 24px", borderTop: "1px solid #1f1f1f" }}
+      >
+        <div className="max-w-5xl mx-auto" style={{ textAlign: "center" }}>
+          <p
+            style={{
+              fontSize: 11,
+              fontWeight: 600,
+              letterSpacing: "0.12em",
+              color: "#22c55e",
+              textTransform: "uppercase",
+              marginBottom: 12,
+            }}
+          >
+            Pricing
+          </p>
+          <h2
+            style={{
+              fontSize: "clamp(28px, 4vw, 36px)",
+              fontWeight: 700,
+              letterSpacing: "-0.02em",
+              marginBottom: 48,
+            }}
+          >
+            Simple pricing
+          </h2>
+
+          {/* Single card */}
+          <div
+            style={{
+              maxWidth: 400,
+              margin: "0 auto",
+              backgroundColor: "#111111",
+              border: "1px solid #1f1f1f",
+              borderRadius: 18,
+              padding: "36px 32px",
+              textAlign: "left",
+            }}
+          >
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 24 }}>
+              <span style={{ fontSize: 13, fontWeight: 600, color: "#71717a" }}>
+                PLAN
+              </span>
+              <span
+                style={{
+                  fontSize: 11,
+                  fontWeight: 700,
+                  letterSpacing: "0.08em",
+                  color: "#22c55e",
+                  backgroundColor: "#22c55e18",
+                  padding: "3px 10px",
+                  borderRadius: 999,
+                }}
+              >
+                FREE
+              </span>
+            </div>
+
+            <div style={{ marginBottom: 28 }}>
+              <span
+                style={{ fontSize: 46, fontWeight: 800, letterSpacing: "-0.04em" }}
+              >
+                $0
+              </span>
+              <span style={{ fontSize: 16, color: "#71717a", marginLeft: 6 }}>
+                / month
+              </span>
+            </div>
+
+            <div
+              style={{
+                borderTop: "1px solid #1f1f1f",
+                paddingTop: 24,
+                marginBottom: 28,
+                display: "flex",
+                flexDirection: "column",
+                gap: 14,
+              }}
+            >
+              {pricingFeatures.map((f) => (
+                <div key={f} style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                  <CheckCircle2 size={16} color="#22c55e" style={{ flexShrink: 0 }} />
+                  <span style={{ fontSize: 14, color: "#a1a1aa" }}>{f}</span>
+                </div>
+              ))}
+            </div>
+
+            <Link
+              href="/login"
+              style={{
+                display: "block",
+                textAlign: "center",
+                backgroundColor: "#22c55e",
+                color: "#0a0a0a",
+                fontWeight: 700,
+                fontSize: 15,
+                textDecoration: "none",
+                padding: "12px 0",
+                borderRadius: 10,
+              }}
+              className="hover:opacity-90 transition-opacity duration-150"
+            >
+              Get Started Free
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      {/* ── CTA SECTION ─────────────────────────── */}
+      <section
+        style={{
+          backgroundColor: "#111111",
+          borderTop: "1px solid #1f1f1f",
+          padding: "80px 24px",
+          textAlign: "center",
+        }}
+      >
+        <div className="max-w-2xl mx-auto">
+          <h2
+            style={{
+              fontSize: "clamp(26px, 4vw, 36px)",
+              fontWeight: 700,
+              letterSpacing: "-0.02em",
+              marginBottom: 14,
+            }}
+          >
+            Ready to stop being confused?
+          </h2>
+          <p style={{ fontSize: 15, color: "#71717a", marginBottom: 32 }}>
+            Join students who study smarter with AlgoPath
+          </p>
+          <Link
+            href="/login"
+            style={{
+              backgroundColor: "#22c55e",
+              color: "#0a0a0a",
+              fontWeight: 700,
+              fontSize: 15,
+              textDecoration: "none",
+              padding: "12px 28px",
+              borderRadius: 10,
+              display: "inline-flex",
+              alignItems: "center",
+              gap: 6,
+            }}
+            className="hover:opacity-90 transition-opacity duration-150"
+          >
+            Start Learning Free →
+          </Link>
+        </div>
+      </section>
+
+      {/* ── FOOTER ──────────────────────────────── */}
+      <footer
+        style={{
+          backgroundColor: "#0a0a0a",
+          borderTop: "1px solid #1f1f1f",
+          padding: "40px 24px 28px",
+        }}
+      >
+        <div
+          className="max-w-5xl mx-auto"
+          style={{
+            display: "flex",
+            flexWrap: "wrap",
+            justifyContent: "space-between",
+            alignItems: "flex-start",
+            gap: 24,
+            marginBottom: 32,
+          }}
+        >
+          {/* Left */}
+          <div>
+            <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8 }}>
+              <span
+                style={{ backgroundColor: "#22c55e", width: 18, height: 18 }}
+                className="rounded-full"
+              />
+              <span style={{ fontWeight: 600, fontSize: 14 }}>AlgoPath</span>
+            </div>
+            <p style={{ fontSize: 13, color: "#71717a" }}>Built for serious learners</p>
+          </div>
+
+          {/* Right links */}
+          <div style={{ display: "flex", gap: 24 }}>
+            {[
+              { label: "Features", href: "#features" },
+              { label: "Roadmap", href: "#how-it-works" },
+              { label: "Pricing", href: "#pricing" },
+              { label: "GitHub", href: "https://github.com" },
+            ].map(({ label, href }) => (
+              <a
+                key={label}
+                href={href}
+                style={{ fontSize: 13, color: "#71717a", textDecoration: "none" }}
+                className="hover:text-white transition-colors duration-150"
+              >
+                {label}
+              </a>
+            ))}
+          </div>
+        </div>
+
+        <div
+          style={{
+            borderTop: "1px solid #1f1f1f",
+            paddingTop: 20,
+            textAlign: "center",
+            fontSize: 12,
+            color: "#3f3f46",
+          }}
+        >
+          © 2025 AlgoPath. All rights reserved.
         </div>
       </footer>
     </div>
-  )
+  );
 }
