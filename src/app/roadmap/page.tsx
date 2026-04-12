@@ -26,14 +26,27 @@ type TopicStatus = "completed" | "in-progress" | "locked";
    HARDCODED METADATA
 ───────────────────────────────────────────── */
 const topicMeta: Record<string, { difficulty: string; problems: number }> = {
-  arrays: { difficulty: "Beginner", problems: 12 },
-  strings: { difficulty: "Beginner", problems: 10 },
-  "linked-lists": { difficulty: "Beginner", problems: 8 },
-  "binary-search": { difficulty: "Beginner", problems: 9 },
-  recursion: { difficulty: "Beginner", problems: 7 },
+  'arrays':               { difficulty: 'Beginner',     problems: 12 },
+  'strings':              { difficulty: 'Beginner',     problems: 10 },
+  'linked-lists':         { difficulty: 'Beginner',     problems: 8  },
+  'binary-search':        { difficulty: 'Beginner',     problems: 9  },
+  'recursion':            { difficulty: 'Beginner',     problems: 7  },
+  'stacks-queues':        { difficulty: 'Beginner',     problems: 5  },
+  'hashing':              { difficulty: 'Beginner',     problems: 5  },
+  'trees':                { difficulty: 'Intermediate', problems: 5  },
+  'heaps':                { difficulty: 'Intermediate', problems: 5  },
+  'graphs':               { difficulty: 'Intermediate', problems: 5  },
+  'dynamic-programming':  { difficulty: 'Advanced',     problems: 5  },
+  'greedy':               { difficulty: 'Intermediate', problems: 5  },
+  'backtracking':         { difficulty: 'Intermediate', problems: 5  },
+  'bit-manipulation':     { difficulty: 'Beginner',     problems: 5  },
+  'tries':                { difficulty: 'Advanced',     problems: 5  },
 };
 
-const fallbackMeta = { difficulty: "Intermediate", problems: 10 };
+const fallbackMeta = { difficulty: 'Intermediate', problems: 5 };
+
+// Total problem count across all topics (used in sidebar)
+const totalProblems = Object.values(topicMeta).reduce((sum, m) => sum + m.problems, 0);
 
 /* ─────────────────────────────────────────────
    HELPERS
@@ -567,7 +580,7 @@ export default async function RoadmapPage() {
                   <span
                     style={{ fontSize: 13, fontWeight: 600, color: "#fafafa" }}
                   >
-                    0/45
+                     0/{totalProblems}
                   </span>
                 </div>
                 <div
