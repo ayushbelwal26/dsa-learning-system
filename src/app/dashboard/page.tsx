@@ -1,15 +1,13 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
+import { PlanGenerator } from "@/components/plan-generator";
 import {
   BarChart2,
   Flame,
   Target,
   CheckCircle2,
-  Circle,
-  Clock,
   BookOpen,
-  Zap,
   AlertTriangle,
   CalendarDays,
   Map,
@@ -338,99 +336,8 @@ export default async function DashboardPage() {
         >
           {/* ── LEFT COLUMN ────────────────── */}
           <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
-            {/* Today's Plan */}
-            <section
-              style={{
-                backgroundColor: "#111111",
-                border: "1px solid #1f1f1f",
-                borderRadius: 14,
-                padding: 24,
-              }}
-            >
-              <div
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "space-between",
-                  marginBottom: 20,
-                }}
-              >
-                <div
-                  style={{ display: "flex", alignItems: "center", gap: 8 }}
-                >
-                  <Zap size={16} color="#22c55e" />
-                  <span style={{ fontSize: 15, fontWeight: 600 }}>
-                    Today&apos;s Plan
-                  </span>
-                </div>
-                <button
-                  type="button"
-                  style={{
-                    backgroundColor: "#22c55e",
-                    color: "#0a0a0a",
-                    border: "none",
-                    borderRadius: 8,
-                    padding: "6px 14px",
-                    fontSize: 13,
-                    fontWeight: 600,
-                    cursor: "pointer",
-                  }}
-                >
-                  Generate Plan
-                </button>
-              </div>
-
-              <div
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  gap: 10,
-                  marginBottom: 18,
-                }}
-              >
-                <Clock size={14} color="#71717a" />
-                <span style={{ fontSize: 13, color: "#71717a" }}>
-                  I have
-                </span>
-                <select
-                  style={{
-                    backgroundColor: "#1a1a1a",
-                    border: "1px solid #1f1f1f",
-                    borderRadius: 6,
-                    color: "#fafafa",
-                    fontSize: 13,
-                    padding: "3px 8px",
-                    cursor: "pointer",
-                  }}
-                  defaultValue="1hr"
-                >
-                  <option value="30min">30 min</option>
-                  <option value="1hr">1 hr</option>
-                  <option value="2hrs">2 hrs</option>
-                  <option value="3hrs">3 hrs</option>
-                </select>
-                <span style={{ fontSize: 13, color: "#71717a" }}>today</span>
-              </div>
-
-              {/* Empty plan state */}
-              <div
-                style={{
-                  backgroundColor: "#0d0d0d",
-                  border: "1px dashed #2a2a2a",
-                  borderRadius: 10,
-                  padding: "28px 20px",
-                  textAlign: "center",
-                }}
-              >
-                <p style={{ fontSize: 13, color: "#3f3f46" }}>
-                  No plan yet.{" "}
-                  <span style={{ color: "#22c55e" }}>
-                    Click Generate Plan
-                  </span>{" "}
-                  to get started.
-                </p>
-              </div>
-            </section>
+            {/* Today's Plan — interactive client component */}
+            <PlanGenerator />
 
             {/* Continue Learning */}
             <section
